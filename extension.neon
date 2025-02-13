@@ -1,0 +1,41 @@
+services:
+	-
+		class: Patchlevel\EventSourcingAnalyser\AggregateCollector
+		tags:
+			- phpstan.collector
+
+	-
+		class: Patchlevel\EventSourcingAnalyser\EventCollector
+		tags:
+			- phpstan.collector
+
+	-
+		class: Patchlevel\EventSourcingAnalyser\SubscriberCollector
+		tags:
+			- phpstan.collector
+
+	-
+		class: Patchlevel\EventSourcingAnalyser\AggregateCallCollector
+		tags:
+			- phpstan.collector
+
+	-
+		class: Patchlevel\EventSourcingAnalyser\SubscriberCallCollector
+		tags:
+			- phpstan.collector
+
+	-
+		class: Patchlevel\EventSourcingAnalyser\SymfonyControllerSubscriberAccessCollector
+		tags:
+			- phpstan.collector
+
+	-
+		class: Patchlevel\EventSourcingAnalyser\SymfonyControllerDispatchCommandCollector
+		tags:
+			- phpstan.collector
+
+	errorFormatter.eventSourcingJson:
+		class: Patchlevel\EventSourcingAnalyser\EventSourcingJsonFormatter
+
+	errorFormatter.eventSourcingGraphviz:
+		class: Patchlevel\EventSourcingAnalyser\EventSourcingGraphvizFormatter
