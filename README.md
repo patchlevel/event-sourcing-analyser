@@ -1,4 +1,4 @@
-# event-sourcing-analyser
+# event-sourcing-analyser (WIP)
 
 ![output](output.png)
 
