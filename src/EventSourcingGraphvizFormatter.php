@@ -9,6 +9,9 @@ use PHPStan\Command\Output;
 
 class EventSourcingGraphvizFormatter implements ErrorFormatter
 {
+    const FONT_COLOR = '#343a40';
+    const EDGE_COLOR = '#343a40';
+
     public function formatErrors(AnalysisResult $analysisResult, Output $output): int
     {
         $data = $analysisResult->getCollectedData();
@@ -21,20 +24,33 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
 
         $graph = new Digraph();
         $graph->set('rankdir', 'LR');
+        //$graph->set('splines', 'ortho');
+
+        $graph->set('overlap', 'scalexy');
+
+        $graph->set('nodesep', 0.5);
+        $graph->set('ranksep', 1);
+        $graph->set('concentrate', true);
+        $graph->set('fontcolor', self::FONT_COLOR);
 
         $commandInit = [];
 
         foreach ($aggregates as $aggregate) {
             $sub = $graph->subgraph('cluster_' . $aggregate['name']);
             $sub->set('label', $aggregate['name']);
-            $sub->set('bgcolor', '#ffe066');
+            $sub->set('bgcolor', '#ffec99');
+            $sub->set('penwidth', 0);
 
             foreach ($aggregate['events'] as $event) {
                 $sub->node($event, [
                     'label' => $events[$event],
                     'color' => '#ffc078',
-                    'shape' => 'box',
+                    'fontcolor' => self::FONT_COLOR,
+                    'shape' => 'Mrecord',
                     'style' => 'filled',
+                    'width' => 3,
+                    'height' => 1,
+                    'fixedsize' => true,
                 ]);
             }
 
@@ -44,15 +60,21 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
                 $sub->node($command, [
                     'label' => Helper::classToName($command),
                     'color' => '#74c0fc',
-                    'shape' => 'box',
+                    'fontcolor' => self::FONT_COLOR,
+                    'shape' => 'Mrecord',
                     'style' => 'filled',
+                    'width' => 3,
+                    'height' => 1,
+                    'fixedsize' => true,
                 ]);
             }
         }
 
         foreach ($commandToEvent as $command => $events) {
             foreach ($events as $event) {
-                $graph->edge([$command, $event]);
+                $graph->edge([$command, $event], [
+                    'color' => self::EDGE_COLOR,
+                ]);
             }
         }
 
@@ -64,16 +86,24 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
                     'processor' => '#e599f7',
                     'projector' => '#8ce99a',
                 },
-                'shape' => 'box',
+                'fontcolor' => self::FONT_COLOR,
+                'shape' => 'Mrecord',
                 'style' => 'filled',
+                'width' => 3,
+                'height' => 1,
+                'fixedsize' => true,
             ]);
 
             foreach ($subscriber['events'] as $event) {
-                $graph->edge([$event, $class]);
+                $graph->edge([$event, $class], [
+                    'color' => self::EDGE_COLOR,
+                ]);
             }
 
             foreach ($subscriber['commands'] as $command) {
-                $graph->edge([$class, $command]);
+                $graph->edge([$class, $command], [
+                    'color' => self::EDGE_COLOR,
+                ]);
             }
         }
 
@@ -81,12 +111,18 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
             $graph->node($class, [
                 'label' => Helper::classToName($class),
                 'color' => '#dee2e6',
-                'shape' => 'box',
+                'fontcolor' => self::FONT_COLOR,
+                'shape' => 'Mrecord',
                 'style' => 'filled',
+                'width' => 3,
+                'height' => 1,
+                'fixedsize' => true,
             ]);
 
             foreach ($data['commands'] as $command) {
-                $graph->edge([$class, $command]);
+                $graph->edge([$class, $command], [
+                    'color' => self::EDGE_COLOR,
+                ]);
 
                 if (array_key_exists($command, $commandInit)) {
                     continue;
@@ -95,15 +131,21 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
                 $graph->node($command, [
                     'label' => Helper::classToName($command),
                     'color' => '#74c0fc',
-                    'shape' => 'box',
+                    'fontcolor' => self::FONT_COLOR,
+                    'shape' => 'Mrecord',
                     'style' => 'filled',
+                    'width' => 3,
+                    'height' => 1,
+                    'fixedsize' => true,
                 ]);
 
                 $commandInit[$command] = true;
             }
 
             foreach ($data['subscribers'] as $subscriber) {
-                $graph->edge([$subscriber, $class]);
+                $graph->edge([$subscriber, $class], [
+                    'color' => self::EDGE_COLOR,
+                ]);
             }
         }
 
