@@ -6,5 +6,5 @@ parameters:
 	errorFormat: eventSourcingGraphviz
 	paths:
 		- src/
-		- ../anyu-atelier/src
-#		- ../etheria/api/src
+#		- ../anyu-atelier/src
+		- ../etheria/api/src

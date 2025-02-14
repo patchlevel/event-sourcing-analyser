@@ -80,8 +80,6 @@ class EventSourcingJsonFormatter implements ErrorFormatter
             ];
         }
 
-        dump($result);
-
         return $result;
     }
 

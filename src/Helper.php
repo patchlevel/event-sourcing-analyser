@@ -85,8 +85,6 @@ final class Helper
 
         $result = [];
 
-        dump($eventData);
-
         foreach ($eventData as $row) {
             $data = $row->getData();
 
@@ -239,6 +237,10 @@ final class Helper
         $key = sprintf('%s::%s', $aggregate, $method);
 
         $events = [];
+
+        if (!array_key_exists($key, $methodCalls)) {
+            return $events;
+        }
 
         $calls = $methodCalls[$key];
 
