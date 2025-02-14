@@ -34,9 +34,20 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
         $graph->set('fontcolor', self::FONT_COLOR);
 
         $commandInit = [];
+        $boundaries = [];
 
         foreach ($aggregates as $aggregate) {
-            $sub = $graph->subgraph('cluster_' . $aggregate['name']);
+            $boundary = Helper::boundedContext($aggregate['class']);
+
+            if (!array_key_exists($boundary, $boundaries)) {
+                $sub = $graph->subgraph('cluster_b_' . $boundary);
+                $sub->set('label', $boundary);
+                $sub->set('style', 'dotted');
+
+                $boundaries[$boundary] = true;
+            }
+
+            $sub = $graph->subgraph('cluster_b_' . $boundary)->subgraph('cluster_' . $aggregate['name']);
             $sub->set('label', $aggregate['name']);
             $sub->set('bgcolor', '#ffec99');
             $sub->set('penwidth', 0);
@@ -79,7 +90,19 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
         }
 
         foreach ($subscribers as $class => $subscriber) {
-            $graph->node($class, [
+            $boundary = Helper::boundedContext($class);
+
+            if (!array_key_exists($boundary, $boundaries)) {
+                $sub = $graph->subgraph('cluster_b_' . $boundary);
+                $sub->set('label', $boundary);
+                $sub->set('style', 'dotted');
+
+                $boundaries[$boundary] = true;
+            }
+
+            $sub = $graph->subgraph('cluster_b_' . $boundary);
+
+            $sub->node($class, [
                 'label' => $subscriber['name'],
                 'color' => match ($subscriber['type']) {
                     'subscriber' => '#ffa8a8',
@@ -108,7 +131,19 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
         }
 
         foreach ($controllers as $class => $data) {
-            $graph->node($class, [
+            $boundary = Helper::boundedContext($class);
+
+            if (!array_key_exists($boundary, $boundaries)) {
+                $sub = $graph->subgraph('cluster_b_' . $boundary);
+                $sub->set('label', $boundary);
+                $sub->set('style', 'dotted');
+
+                $boundaries[$boundary] = true;
+            }
+
+            $sub = $graph->subgraph('cluster_b_' . $boundary);
+
+            $sub->node($class, [
                 'label' => Helper::classToName($class),
                 'color' => '#dee2e6',
                 'fontcolor' => self::FONT_COLOR,
@@ -128,7 +163,19 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
                     continue;
                 }
 
-                $graph->node($command, [
+                $boundary = Helper::boundedContext($command);
+
+                if (!array_key_exists($boundary, $boundaries)) {
+                    $sub = $graph->subgraph('cluster_b_' . $boundary);
+                    $sub->set('label', $boundary);
+                    $sub->set('style', 'dotted');
+
+                    $boundaries[$boundary] = true;
+                }
+
+                $sub = $graph->subgraph('cluster_b_' . $boundary);
+
+                $sub->node($command, [
                     'label' => Helper::classToName($command),
                     'color' => '#74c0fc',
                     'fontcolor' => self::FONT_COLOR,

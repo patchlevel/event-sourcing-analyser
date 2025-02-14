@@ -266,4 +266,13 @@ final class Helper
 
         return end($parts);
     }
+
+    public static function boundedContext(string $class): string|null
+    {
+        if (preg_match('#\\\\([^/]+)\\\\(Domain|Infrastructure|Application)\\\\#', $class, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
 }
