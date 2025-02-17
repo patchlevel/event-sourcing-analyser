@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Patchlevel\EventSourcingAnalyser;
 
 use Patchlevel\EventSourcing\Attribute\Processor;
@@ -9,13 +11,13 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Collectors\Collector;
-use PHPStan\Node\InClassNode;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\ThisType;
+use PHPStan\Type\Type;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
 /**
- * @implements Collector<InClassNode, null>
+ * @implements Collector<MethodCall, array{controllerClass: class-string, commandClass: class-string}>
  */
 final class SymfonyControllerSubscriberAccessCollector implements Collector
 {
@@ -24,12 +26,11 @@ final class SymfonyControllerSubscriberAccessCollector implements Collector
         return MethodCall::class;
     }
 
+    /**
+     * @return array{controllerClass: class-string, subscriberClass: class-string}|null
+     */
     public function processNode(Node $node, Scope $scope): array|null
     {
-        if (!$node instanceof MethodCall) {
-            return null;
-        }
-
         $subscriptionClass = $this->subscriptionClass($node, $scope);
         $controllerClass = $this->controllerClass($scope);
 
@@ -43,6 +44,9 @@ final class SymfonyControllerSubscriberAccessCollector implements Collector
         ];
     }
 
+    /**
+     * @return class-string|null
+     */
     private function controllerClass(Scope $scope): string|null
     {
         $class = $scope->getClassReflection();
@@ -62,13 +66,12 @@ final class SymfonyControllerSubscriberAccessCollector implements Collector
         return null;
     }
 
-    private function subscriptionClass(Node $node, Scope $scope): string|null
+    /**
+     * @return class-string|null
+     */
+    private function subscriptionClass(MethodCall $node, Scope $scope): string|null
     {
         $classType = $scope->getType($node->var);
-
-        if (!$classType instanceof ObjectType && !$classType instanceof ThisType) {
-            return null;
-        }
 
         $reflection = $scope->getMethodReflection($classType, $node->name->name)?->getDeclaringClass();
 

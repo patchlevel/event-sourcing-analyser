@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Patchlevel\EventSourcingAnalyser;
 
 use Graphviz\Digraph;
@@ -11,186 +13,166 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
 {
     const FONT_COLOR = '#343a40';
     const EDGE_COLOR = '#343a40';
+    const AGGREGATE_COLOR = '#ffec99';
+    const EVENT_COLOR = '#ffc078';
+    const COMMAND_COLOR = '#74c0fc';
+    const SUBSCRIBER_COLOR = '#ffa8a8';
+    const PROCESSOR_COLOR = '#e599f7';
+    const PROJECTOR_COLOR = '#8ce99a';
+    const USER_INTERFACE_COLOR = '#dee2e6';
+    const DEFAULT_STYLE = [
+        'shape' => 'Mrecord',
+        'style' => 'filled',
+        'width' => 3,
+        'height' => 1,
+        'fixedsize' => true,
+        'fontcolor' => self::FONT_COLOR,
+    ];
 
     public function formatErrors(AnalysisResult $analysisResult, Output $output): int
     {
         $data = $analysisResult->getCollectedData();
-
-        $commandToEvent = Helper::commandToEvents($data);
-        $aggregates = Helper::aggregates($data);
-        $events = Helper::events($data);
-        $subscribers = Helper::subscribers($data);
-        $controllers = Helper::controller($data);
+        $project = (new ProjectFactory())($data);
 
         $graph = new Digraph();
         $graph->set('rankdir', 'LR');
         //$graph->set('splines', 'ortho');
-
-        $graph->set('overlap', 'scalexy');
-
-        $graph->set('nodesep', 0.5);
-        $graph->set('ranksep', 1);
-        $graph->set('concentrate', true);
+        $graph->set('nodesep', '0.5');
+        $graph->set('ranksep', '1');
         $graph->set('fontcolor', self::FONT_COLOR);
 
-        $commandInit = [];
-        $boundaries = [];
+        $renderedNodes = [];
 
-        foreach ($aggregates as $aggregate) {
-            $boundary = Helper::boundedContext($aggregate['class']);
+        foreach ($project->boundedContexts as $boundedContext) {
+            $boundedContextGraph = $graph->subgraph('cluster_b_' . $boundedContext->name);
+            $boundedContextGraph->set('label', $boundedContext->name);
+            $boundedContextGraph->set('style', 'dotted');
 
-            if (!array_key_exists($boundary, $boundaries)) {
-                $sub = $graph->subgraph('cluster_b_' . $boundary);
-                $sub->set('label', $boundary);
-                $sub->set('style', 'dotted');
+            foreach ($boundedContext->aggregates as $aggregateClass) {
+                $aggregate = $project->aggregates[$aggregateClass];
 
-                $boundaries[$boundary] = true;
+                $aggregateGraph = $boundedContextGraph->subgraph('cluster_a_' . $aggregate->name);
+                $aggregateGraph->set('label', $aggregate->name);
+                $aggregateGraph->set('bgcolor', self::AGGREGATE_COLOR);
+                $aggregateGraph->set('penwidth', '0');
+
+                foreach ($aggregate->events as $eventClass) {
+                    $event = $project->events[$eventClass];
+
+                    $aggregateGraph->node($eventClass, [
+                        'label' => $event->name,
+                        'color' => self::EVENT_COLOR,
+                        ...self::DEFAULT_STYLE,
+                    ]);
+
+                    $renderedNodes[$eventClass] = true;
+                }
+
+                foreach ($aggregate->commands as $commandClass) {
+                    $command = $project->commands[$commandClass];
+
+                    $aggregateGraph->node($commandClass, [
+                        'label' => $command->name,
+                        'color' => self::COMMAND_COLOR,
+                        ...self::DEFAULT_STYLE,
+                    ]);
+
+                    $renderedNodes[$commandClass] = true;
+                }
             }
 
-            $sub = $graph->subgraph('cluster_b_' . $boundary)->subgraph('cluster_' . $aggregate['name']);
-            $sub->set('label', $aggregate['name']);
-            $sub->set('bgcolor', '#ffec99');
-            $sub->set('penwidth', 0);
-
-            foreach ($aggregate['events'] as $event) {
-                $sub->node($event, [
-                    'label' => $events[$event],
-                    'color' => '#ffc078',
-                    'fontcolor' => self::FONT_COLOR,
-                    'shape' => 'Mrecord',
-                    'style' => 'filled',
-                    'width' => 3,
-                    'height' => 1,
-                    'fixedsize' => true,
-                ]);
-            }
-
-            foreach ($aggregate['commands'] as $command) {
-                $commandInit[$command] = true;
-
-                $sub->node($command, [
-                    'label' => Helper::classToName($command),
-                    'color' => '#74c0fc',
-                    'fontcolor' => self::FONT_COLOR,
-                    'shape' => 'Mrecord',
-                    'style' => 'filled',
-                    'width' => 3,
-                    'height' => 1,
-                    'fixedsize' => true,
-                ]);
-            }
-        }
-
-        foreach ($commandToEvent as $command => $events) {
-            foreach ($events as $event) {
-                $graph->edge([$command, $event], [
-                    'color' => self::EDGE_COLOR,
-                ]);
-            }
-        }
-
-        foreach ($subscribers as $class => $subscriber) {
-            $boundary = Helper::boundedContext($class);
-
-            if (!array_key_exists($boundary, $boundaries)) {
-                $sub = $graph->subgraph('cluster_b_' . $boundary);
-                $sub->set('label', $boundary);
-                $sub->set('style', 'dotted');
-
-                $boundaries[$boundary] = true;
-            }
-
-            $sub = $graph->subgraph('cluster_b_' . $boundary);
-
-            $sub->node($class, [
-                'label' => $subscriber['name'],
-                'color' => match ($subscriber['type']) {
-                    'subscriber' => '#ffa8a8',
-                    'processor' => '#e599f7',
-                    'projector' => '#8ce99a',
-                },
-                'fontcolor' => self::FONT_COLOR,
-                'shape' => 'Mrecord',
-                'style' => 'filled',
-                'width' => 3,
-                'height' => 1,
-                'fixedsize' => true,
-            ]);
-
-            foreach ($subscriber['events'] as $event) {
-                $graph->edge([$event, $class], [
-                    'color' => self::EDGE_COLOR,
-                ]);
-            }
-
-            foreach ($subscriber['commands'] as $command) {
-                $graph->edge([$class, $command], [
-                    'color' => self::EDGE_COLOR,
-                ]);
-            }
-        }
-
-        foreach ($controllers as $class => $data) {
-            $boundary = Helper::boundedContext($class);
-
-            if (!array_key_exists($boundary, $boundaries)) {
-                $sub = $graph->subgraph('cluster_b_' . $boundary);
-                $sub->set('label', $boundary);
-                $sub->set('style', 'dotted');
-
-                $boundaries[$boundary] = true;
-            }
-
-            $sub = $graph->subgraph('cluster_b_' . $boundary);
-
-            $sub->node($class, [
-                'label' => Helper::classToName($class),
-                'color' => '#dee2e6',
-                'fontcolor' => self::FONT_COLOR,
-                'shape' => 'Mrecord',
-                'style' => 'filled',
-                'width' => 3,
-                'height' => 1,
-                'fixedsize' => true,
-            ]);
-
-            foreach ($data['commands'] as $command) {
-                $graph->edge([$class, $command], [
-                    'color' => self::EDGE_COLOR,
-                ]);
-
-                if (array_key_exists($command, $commandInit)) {
+            foreach ($boundedContext->events as $eventClass) {
+                if (array_key_exists($eventClass, $renderedNodes)) {
                     continue;
                 }
 
-                $boundary = Helper::boundedContext($command);
+                $event = $project->events[$eventClass];
 
-                if (!array_key_exists($boundary, $boundaries)) {
-                    $sub = $graph->subgraph('cluster_b_' . $boundary);
-                    $sub->set('label', $boundary);
-                    $sub->set('style', 'dotted');
-
-                    $boundaries[$boundary] = true;
-                }
-
-                $sub = $graph->subgraph('cluster_b_' . $boundary);
-
-                $sub->node($command, [
-                    'label' => Helper::classToName($command),
-                    'color' => '#74c0fc',
-                    'fontcolor' => self::FONT_COLOR,
-                    'shape' => 'Mrecord',
-                    'style' => 'filled',
-                    'width' => 3,
-                    'height' => 1,
-                    'fixedsize' => true,
+                $boundedContextGraph->node($eventClass, [
+                    'label' => $event->name,
+                    'color' => self::EVENT_COLOR,
+                    ...self::DEFAULT_STYLE,
                 ]);
 
-                $commandInit[$command] = true;
+                $renderedNodes[$eventClass] = true;
             }
 
-            foreach ($data['subscribers'] as $subscriber) {
-                $graph->edge([$subscriber, $class], [
+            foreach ($boundedContext->commands as $commandClass) {
+                if (array_key_exists($commandClass, $renderedNodes)) {
+                    continue;
+                }
+
+                $command = $project->commands[$commandClass];
+
+                $boundedContextGraph->node($commandClass, [
+                    'label' => $command->name,
+                    'color' => self::COMMAND_COLOR,
+                    ...self::DEFAULT_STYLE,
+                ]);
+
+                $renderedNodes[$commandClass] = true;
+            }
+
+            foreach ($boundedContext->subscribers as $subscriberClass) {
+                $subscriber = $project->subscribers[$subscriberClass];
+
+                $boundedContextGraph->node($subscriberClass, [
+                    'label' => $subscriber->name,
+                    'color' => match ($subscriber->type->value) {
+                        'subscriber' => self::SUBSCRIBER_COLOR,
+                        'processor' => self::PROCESSOR_COLOR,
+                        'projector' => self::PROJECTOR_COLOR,
+                    },
+                    ...self::DEFAULT_STYLE,
+                ]);
+
+                $renderedNodes[$subscriberClass] = true;
+            }
+
+            foreach ($boundedContext->userInterfaces as $userInterfaceClass) {
+                $userInterface = $project->userInterfaces[$userInterfaceClass];
+
+                $boundedContextGraph->node($userInterface->class, [
+                    'label' => $userInterface->name,
+                    'color' => self::USER_INTERFACE_COLOR,
+                    ...self::DEFAULT_STYLE,
+                ]);
+
+                $renderedNodes[$userInterfaceClass] = true;
+            }
+        }
+
+        foreach ($project->commands as $command) {
+            foreach ($command->events as $eventClass) {
+                $graph->edge([$command->class, $eventClass], [
+                    'color' => self::EDGE_COLOR,
+                ]);
+            }
+        }
+
+        foreach ($project->subscribers as $subscriber) {
+            foreach ($subscriber->events as $eventClass) {
+                $graph->edge([$eventClass, $subscriber->class], [
+                    'color' => self::EDGE_COLOR,
+                ]);
+            }
+
+            foreach ($subscriber->commands as $commandClass) {
+                $graph->edge([$subscriber->class, $commandClass], [
+                    'color' => self::EDGE_COLOR,
+                ]);
+            }
+        }
+
+        foreach ($project->userInterfaces as $userInterface) {
+            foreach ($userInterface->commands as $commandClass) {
+                $graph->edge([$userInterface->class, $commandClass], [
+                    'color' => self::EDGE_COLOR,
+                ]);
+            }
+
+            foreach ($userInterface->subscribers as $subscriberClass) {
+                $graph->edge([$subscriberClass, $userInterface->class], [
                     'color' => self::EDGE_COLOR,
                 ]);
             }

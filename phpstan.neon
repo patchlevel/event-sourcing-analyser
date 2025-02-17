@@ -3,8 +3,5 @@ includes:
 
 parameters:
 	level: max
-	errorFormat: eventSourcingGraphviz
 	paths:
 		- src/
-#		- ../anyu-atelier/src
-		- ../etheria/api/src

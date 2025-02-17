@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 namespace Patchlevel\EventSourcingAnalyser;
 
 use Patchlevel\EventSourcing\Attribute\Event;
@@ -9,7 +12,7 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Node\InClassNode;
 
 /**
- * @implements Collector<InClassNode, null>
+ * @implements Collector<InClassNode, array{class: class-string, name: string}>
  */
 final class EventCollector implements Collector
 {
@@ -18,7 +21,10 @@ final class EventCollector implements Collector
         return InClassNode::class;
     }
 
-    public function processNode(Node $node, Scope $scope)
+    /**
+     * @return array{class: class-string, name: string}|null
+     */
+    public function processNode(Node $node, Scope $scope): array|null
     {
         $class = $node->getClassReflection();
         $attributes = $class->getAttributes();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Patchlevel\EventSourcingAnalyser;
 
 use Patchlevel\EventSourcing\Attribute\Aggregate;
@@ -9,7 +11,7 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Node\InClassNode;
 
 /**
- * @implements Collector<InClassNode, null>
+ * @implements Collector<InClassNode, array{class: class-string, name: string}>
  */
 final class AggregateCollector implements Collector
 {
@@ -18,12 +20,11 @@ final class AggregateCollector implements Collector
         return InClassNode::class;
     }
 
+    /**
+     * @return array{class: class-string, name: string}|null
+     */
     public function processNode(Node $node, Scope $scope): array|null
     {
-        if (!$node instanceof InClassNode) {
-            return null;
-        }
-
         $classReflection = $scope->getClassReflection();
 
         if ($classReflection === null) {

@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 namespace Patchlevel\EventSourcingAnalyser;
 
 use Patchlevel\EventSourcing\Attribute\Processor;
@@ -11,7 +14,7 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Node\InClassNode;
 
 /**
- * @implements Collector<InClassNode, null>
+ * @implements Collector<InClassNode, array{class: class-string, type: string, name: string}>
  */
 final class SubscriberCollector implements Collector
 {
@@ -20,12 +23,11 @@ final class SubscriberCollector implements Collector
         return InClassNode::class;
     }
 
+    /**
+     * @return array{class: class-string, type: string, name: string}|null
+     */
     public function processNode(Node $node, Scope $scope): array|null
     {
-        if (!$node instanceof InClassNode) {
-            return null;
-        }
-
         $classReflection = $scope->getClassReflection();
 
         if ($classReflection === null) {

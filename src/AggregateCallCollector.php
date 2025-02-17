@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Patchlevel\EventSourcingAnalyser;
 
 use Patchlevel\EventSourcing\Aggregate\BasicAggregateRoot;
@@ -8,12 +10,11 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Collectors\Collector;
-use PHPStan\Node\InClassNode;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\ThisType;
 
 /**
- * @implements Collector<InClassNode, null>
+ * @implements Collector<MethodCall, array{aggregateClass: class-string, callMethod: string|null, calledMethod: string|null, eventClass: string|null, commandClass: string|null}>
  */
 final class AggregateCallCollector implements Collector
 {
@@ -22,12 +23,11 @@ final class AggregateCallCollector implements Collector
         return MethodCall::class;
     }
 
+    /**
+     * @return array{aggregateClass: class-string, callMethod: string|null, calledMethod: string|null, eventClass: string|null, commandClass: string|null}|null
+     */
     public function processNode(Node $node, Scope $scope): array|null
     {
-        if (!$node instanceof MethodCall) {
-            return null;
-        }
-
         $classType = $scope->getType($node->var);
 
         if (!$classType instanceof ObjectType && !$classType instanceof ThisType) {
@@ -56,6 +56,9 @@ final class AggregateCallCollector implements Collector
         ];
     }
 
+    /**
+     * @return class-string|null
+     */
     private function eventClass(MethodCall $node, Scope $scope): string|null
     {
         if ($node->name->name !== 'recordThat') {
@@ -71,6 +74,9 @@ final class AggregateCallCollector implements Collector
         return $type->getClassName();
     }
 
+    /**
+     * @return class-string|null
+     */
     private function commandClass(MethodCall $node, Scope $scope): string|null
     {
         $function = $scope->getFunction();
