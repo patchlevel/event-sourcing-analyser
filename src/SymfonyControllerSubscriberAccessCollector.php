@@ -11,14 +11,11 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Collectors\Collector;
-use PHPStan\Type\ObjectType;
-use PHPStan\Type\ThisType;
-use PHPStan\Type\Type;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
-/**
- * @implements Collector<MethodCall, array{controllerClass: class-string, commandClass: class-string}>
- */
+use function in_array;
+
+/** @implements Collector<MethodCall, array{controllerClass: class-string, commandClass: class-string}> */
 final class SymfonyControllerSubscriberAccessCollector implements Collector
 {
     public function getNodeType(): string
@@ -26,9 +23,7 @@ final class SymfonyControllerSubscriberAccessCollector implements Collector
         return MethodCall::class;
     }
 
-    /**
-     * @return array{controllerClass: class-string, subscriberClass: class-string}|null
-     */
+    /** @return array{controllerClass: class-string, subscriberClass: class-string}|null */
     public function processNode(Node $node, Scope $scope): array|null
     {
         $subscriptionClass = $this->subscriptionClass($node, $scope);
@@ -44,9 +39,7 @@ final class SymfonyControllerSubscriberAccessCollector implements Collector
         ];
     }
 
-    /**
-     * @return class-string|null
-     */
+    /** @return class-string|null */
     private function controllerClass(Scope $scope): string|null
     {
         $class = $scope->getClassReflection();
@@ -66,9 +59,7 @@ final class SymfonyControllerSubscriberAccessCollector implements Collector
         return null;
     }
 
-    /**
-     * @return class-string|null
-     */
+    /** @return class-string|null */
     private function subscriptionClass(MethodCall $node, Scope $scope): string|null
     {
         $classType = $scope->getType($node->var);

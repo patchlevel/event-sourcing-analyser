@@ -15,9 +15,9 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\ThisType;
 
-/**
- * @implements Collector<MethodCall, array{aggregateClass: class-string, callMethod: string|null, calledMethod: string|null, eventClass: string|null, commandClass: string|null}>
- */
+use function in_array;
+
+/** @implements Collector<MethodCall, array{aggregateClass: class-string, callMethod: string|null, calledMethod: string|null, eventClass: string|null, commandClass: string|null}> */
 final class SubscriberCallCollector implements Collector
 {
     public function getNodeType(): string
@@ -25,9 +25,7 @@ final class SubscriberCallCollector implements Collector
         return MethodCall::class;
     }
 
-    /**
-     * @return array{subscriberClass: class-string, callMethod: string|null, calledMethod: string|null, eventClasses: string[], commandClass: string|null}|null
-     */
+    /** @return array{subscriberClass: class-string, callMethod: string|null, calledMethod: string|null, eventClasses: string[], commandClass: string|null}|null */
     public function processNode(Node $node, Scope $scope): array|null
     {
         $classType = $scope->getType($node->var);
@@ -53,9 +51,7 @@ final class SubscriberCallCollector implements Collector
         ];
     }
 
-    /**
-     * @return class-string|null
-     */
+    /** @return class-string|null */
     private function commandClass(MethodCall $node, Scope $scope): string|null
     {
         if ($node->name->name !== 'dispatch') {
@@ -71,9 +67,7 @@ final class SubscriberCallCollector implements Collector
         return $type->getClassName();
     }
 
-    /**
-     * @return list<class-string>
-     */
+    /** @return list<class-string> */
     private function eventClasses(MethodCall $node, Scope $scope): array
     {
         $function = $scope->getFunction();
@@ -105,9 +99,7 @@ final class SubscriberCallCollector implements Collector
         return $result;
     }
 
-    /**
-     * @return class-string|null
-     */
+    /** @return class-string|null */
     private function subscriberClass(Scope $scope): string|null
     {
         $class = $scope->getClassReflection();

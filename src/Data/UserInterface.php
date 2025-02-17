@@ -7,7 +7,7 @@ namespace Patchlevel\EventSourcingAnalyser\Data;
 final class UserInterface
 {
     /**
-     * @param class-string $class
+     * @param class-string       $class
      * @param list<class-string> $commands
      * @param list<class-string> $subscribers
      */

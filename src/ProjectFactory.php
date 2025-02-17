@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Patchlevel\EventSourcingAnalyser;
 
 use Patchlevel\EventSourcingAnalyser\Data\Aggregate;
@@ -15,11 +14,18 @@ use Patchlevel\EventSourcingAnalyser\Data\SubscriberType;
 use Patchlevel\EventSourcingAnalyser\Data\UserInterface;
 use PHPStan\Collectors\CollectedData;
 
-class ProjectFactory
+use function array_filter;
+use function array_key_exists;
+use function array_keys;
+use function array_merge;
+use function end;
+use function explode;
+use function preg_match;
+use function sprintf;
+
+final class ProjectFactory
 {
-    /**
-     * @param list<CollectedData> $collectedDataList
-     */
+    /** @param list<CollectedData> $collectedDataList */
     public function __invoke(array $collectedDataList): Project
     {
         $aggregates = $this->aggregates($collectedDataList);
@@ -42,18 +48,19 @@ class ProjectFactory
 
     /**
      * @param list<CollectedData> $dataList
+     *
      * @return array<class-string, Aggregate>
      */
     private function aggregates(array $dataList): array
     {
         $aggregateData = array_filter(
             $dataList,
-            fn(CollectedData $data) => $data->getCollectorType() === AggregateCollector::class
+            static fn (CollectedData $data) => $data->getCollectorType() === AggregateCollector::class,
         );
 
         $aggregateCallData = array_filter(
             $dataList,
-            fn(CollectedData $data) => $data->getCollectorType() === AggregateCallCollector::class
+            static fn (CollectedData $data) => $data->getCollectorType() === AggregateCallCollector::class,
         );
 
         $result = [];
@@ -75,9 +82,11 @@ class ProjectFactory
                     $events[$d['eventClass']] = true;
                 }
 
-                if ($d['commandClass'] !== null) {
-                    $commands[$d['commandClass']] = true;
+                if ($d['commandClass'] === null) {
+                    continue;
                 }
+
+                $commands[$d['commandClass']] = true;
             }
 
             $result[$data['class']] = new Aggregate(
@@ -93,13 +102,14 @@ class ProjectFactory
 
     /**
      * @param list<CollectedData> $dataList
+     *
      * @return array<class-string, Event>
      */
     private function events(array $dataList): array
     {
         $eventData = array_filter(
             $dataList,
-            fn(CollectedData $data) => $data->getCollectorType() === EventCollector::class
+            static fn (CollectedData $data) => $data->getCollectorType() === EventCollector::class,
         );
 
         $result = [];
@@ -118,18 +128,19 @@ class ProjectFactory
 
     /**
      * @param list<CollectedData> $dataList
+     *
      * @return array<class-string, Subscriber>
      */
     private function subscribers(array $dataList): array
     {
         $eventData = array_filter(
             $dataList,
-            fn(CollectedData $data) => $data->getCollectorType() === SubscriberCollector::class
+            static fn (CollectedData $data) => $data->getCollectorType() === SubscriberCollector::class,
         );
 
         $subscriberCallData = array_filter(
             $dataList,
-            fn(CollectedData $data) => $data->getCollectorType() === SubscriberCallCollector::class
+            static fn (CollectedData $data) => $data->getCollectorType() === SubscriberCallCollector::class,
         );
 
         $result = [];
@@ -151,9 +162,11 @@ class ProjectFactory
                     $events[$event] = true;
                 }
 
-                if ($d['commandClass'] !== null) {
-                    $commands[$d['commandClass']] = true;
+                if ($d['commandClass'] === null) {
+                    continue;
                 }
+
+                $commands[$d['commandClass']] = true;
             }
 
             $result[$data['class']] = new Subscriber(
@@ -170,6 +183,7 @@ class ProjectFactory
 
     /**
      * @param list<CollectedData> $dataList
+     *
      * @return array<class-string, Command>
      */
     private function commands(array $dataList): array
@@ -178,8 +192,8 @@ class ProjectFactory
 
         $calls = array_filter(
             $dataList,
-            fn(CollectedData $data) => $data->getCollectorType() === AggregateCallCollector::class ||
-                $data->getCollectorType() === SymfonyControllerDispatchCommandCollector::class
+            static fn (CollectedData $data) => $data->getCollectorType() === AggregateCallCollector::class ||
+                $data->getCollectorType() === SymfonyControllerDispatchCommandCollector::class,
         );
 
         $result = [];
@@ -207,13 +221,14 @@ class ProjectFactory
 
     /**
      * @param list<CollectedData> $dataList
+     *
      * @return array<class-string, list<class-string>>
      */
     private function commandToEvents(array $dataList): array
     {
         $aggregateCallData = array_filter(
             $dataList,
-            fn(CollectedData $data) => $data->getCollectorType() === AggregateCallCollector::class
+            static fn (CollectedData $data) => $data->getCollectorType() === AggregateCallCollector::class,
         );
 
         $methodCalls = [];
@@ -247,28 +262,31 @@ class ProjectFactory
                 continue;
             }
 
-            $result[$data['commandClass']] = self::resolveCallForEvents($methodCalls, $data['aggregateClass'],
-                $data['callMethod']);
+            $result[$data['commandClass']] = self::resolveCallForEvents(
+                $methodCalls,
+                $data['aggregateClass'],
+                $data['callMethod'],
+            );
         }
 
         return $result;
     }
 
-
     /**
      * @param list<CollectedData> $dataList
+     *
      * @return array<class-string, UserInterface>
      */
     private function userInterfaces(array $dataList): array
     {
         $commandCallData = array_filter(
             $dataList,
-            fn(CollectedData $data) => $data->getCollectorType() === SymfonyControllerDispatchCommandCollector::class
+            static fn (CollectedData $data) => $data->getCollectorType() === SymfonyControllerDispatchCommandCollector::class,
         );
 
         $subscriberCallData = array_filter(
             $dataList,
-            fn(CollectedData $data) => $data->getCollectorType() === SymfonyControllerSubscriberAccessCollector::class
+            static fn (CollectedData $data) => $data->getCollectorType() === SymfonyControllerSubscriberAccessCollector::class,
         );
 
         $result = [];
@@ -302,12 +320,7 @@ class ProjectFactory
         return $result;
     }
 
-    /**
-     * @param array $methodCalls
-     * @param string $aggregate
-     * @param string $method
-     * @return array<class-string>
-     */
+    /** @return array<class-string> */
     private static function resolveCallForEvents(array $methodCalls, string $aggregate, string $method): array
     {
         $key = sprintf('%s::%s', $aggregate, $method);
@@ -329,7 +342,7 @@ class ProjectFactory
 
             $events = array_merge(
                 $events,
-                self::resolveCallForEvents($methodCalls, $call['aggregateClass'], $call['calledMethod'])
+                self::resolveCallForEvents($methodCalls, $call['aggregateClass'], $call['calledMethod']),
             );
         }
 
@@ -343,7 +356,7 @@ class ProjectFactory
         return end($parts);
     }
 
-    private static function boundedContext(string $class): null|string
+    private static function boundedContext(string $class): string|null
     {
         if (preg_match('#\\\\([^/]+)\\\\(Domain|Infrastructure|Application)\\\\#', $class, $matches)) {
             return $matches[1];
@@ -353,10 +366,10 @@ class ProjectFactory
     }
 
     /**
-     * @param array<class-string, Aggregate> $aggregates
-     * @param array<class-string, Event> $events
-     * @param array<class-string, Subscriber> $subscribers
-     * @param array<class-string, Command> $commands
+     * @param array<class-string, Aggregate>     $aggregates
+     * @param array<class-string, Event>         $events
+     * @param array<class-string, Subscriber>    $subscribers
+     * @param array<class-string, Command>       $commands
      * @param array<class-string, UserInterface> $userInterfaces
      *
      * @return array<string, BoundedContext>
@@ -366,8 +379,8 @@ class ProjectFactory
         array $events,
         array $subscribers,
         array $commands,
-        array $userInterfaces
-    ) {
+        array $userInterfaces,
+    ): array {
         $boundedContexts = [];
 
         foreach (array_keys($aggregates) as $class) {

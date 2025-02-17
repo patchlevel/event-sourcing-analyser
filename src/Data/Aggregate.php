@@ -7,7 +7,7 @@ namespace Patchlevel\EventSourcingAnalyser\Data;
 class Aggregate
 {
     /**
-     * @param class-string $class
+     * @param class-string       $class
      * @param list<class-string> $events
      * @param list<class-string> $commands
      */

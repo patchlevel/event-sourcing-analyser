@@ -7,7 +7,7 @@ namespace Patchlevel\EventSourcingAnalyser\Data;
 class Subscriber
 {
     /**
-     * @param class-string $class
+     * @param class-string       $class
      * @param list<class-string> $events
      * @param list<class-string> $commands
      */

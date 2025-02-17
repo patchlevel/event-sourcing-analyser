@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Patchlevel\EventSourcingAnalyser;
 
 use PhpParser\Node;
@@ -12,9 +11,7 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Type\ObjectType;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
-/**
- * @implements Collector<MethodCall, array{controllerClass: class-string, commandClass: class-string}>
- */
+/** @implements Collector<MethodCall, array{controllerClass: class-string, commandClass: class-string}> */
 final class SymfonyControllerDispatchCommandCollector implements Collector
 {
     public function getNodeType(): string
@@ -22,9 +19,7 @@ final class SymfonyControllerDispatchCommandCollector implements Collector
         return MethodCall::class;
     }
 
-    /**
-     * @return array{controllerClass: class-string, commandClass: class-string}|null
-     */
+    /** @return array{controllerClass: class-string, commandClass: class-string}|null */
     public function processNode(Node $node, Scope $scope): array|null
     {
         $controllerClass = $this->controllerClass($scope);
@@ -49,9 +44,7 @@ final class SymfonyControllerDispatchCommandCollector implements Collector
         ];
     }
 
-    /**
-     * @return class-string|null
-     */
+    /** @return class-string|null */
     private function controllerClass(Scope $scope): string|null
     {
         $class = $scope->getClassReflection();

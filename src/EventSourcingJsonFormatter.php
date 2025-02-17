@@ -8,7 +8,12 @@ use PHPStan\Command\AnalysisResult;
 use PHPStan\Command\ErrorFormatter\ErrorFormatter;
 use PHPStan\Command\Output;
 
-class EventSourcingJsonFormatter implements ErrorFormatter
+use function file_put_contents;
+use function json_encode;
+
+use const JSON_PRETTY_PRINT;
+
+final class EventSourcingJsonFormatter implements ErrorFormatter
 {
     public function formatErrors(AnalysisResult $analysisResult, Output $output): int
     {
@@ -17,7 +22,7 @@ class EventSourcingJsonFormatter implements ErrorFormatter
 
         file_put_contents(
             'event-sourcing.json',
-            json_encode($project, JSON_PRETTY_PRINT)
+            json_encode($project, JSON_PRETTY_PRINT),
         );
 
         return 0;

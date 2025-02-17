@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Patchlevel\EventSourcingAnalyser;
 
 use Patchlevel\EventSourcing\Attribute\Processor;
@@ -13,9 +12,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Collectors\Collector;
 use PHPStan\Node\InClassNode;
 
-/**
- * @implements Collector<InClassNode, array{class: class-string, type: string, name: string}>
- */
+/** @implements Collector<InClassNode, array{class: class-string, type: string, name: string}> */
 final class SubscriberCollector implements Collector
 {
     public function getNodeType(): string
@@ -23,9 +20,7 @@ final class SubscriberCollector implements Collector
         return InClassNode::class;
     }
 
-    /**
-     * @return array{class: class-string, type: string, name: string}|null
-     */
+    /** @return array{class: class-string, type: string, name: string}|null */
     public function processNode(Node $node, Scope $scope): array|null
     {
         $classReflection = $scope->getClassReflection();

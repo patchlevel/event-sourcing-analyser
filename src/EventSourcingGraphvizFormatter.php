@@ -9,18 +9,21 @@ use PHPStan\Command\AnalysisResult;
 use PHPStan\Command\ErrorFormatter\ErrorFormatter;
 use PHPStan\Command\Output;
 
-class EventSourcingGraphvizFormatter implements ErrorFormatter
+use function array_key_exists;
+use function file_put_contents;
+
+final class EventSourcingGraphvizFormatter implements ErrorFormatter
 {
-    const FONT_COLOR = '#343a40';
-    const EDGE_COLOR = '#343a40';
-    const AGGREGATE_COLOR = '#ffec99';
-    const EVENT_COLOR = '#ffc078';
-    const COMMAND_COLOR = '#74c0fc';
-    const SUBSCRIBER_COLOR = '#ffa8a8';
-    const PROCESSOR_COLOR = '#e599f7';
-    const PROJECTOR_COLOR = '#8ce99a';
-    const USER_INTERFACE_COLOR = '#dee2e6';
-    const DEFAULT_STYLE = [
+    public const FONT_COLOR = '#343a40';
+    public const EDGE_COLOR = '#343a40';
+    public const AGGREGATE_COLOR = '#ffec99';
+    public const EVENT_COLOR = '#ffc078';
+    public const COMMAND_COLOR = '#74c0fc';
+    public const SUBSCRIBER_COLOR = '#ffa8a8';
+    public const PROCESSOR_COLOR = '#e599f7';
+    public const PROJECTOR_COLOR = '#8ce99a';
+    public const USER_INTERFACE_COLOR = '#dee2e6';
+    public const DEFAULT_STYLE = [
         'shape' => 'Mrecord',
         'style' => 'filled',
         'width' => 3,
@@ -182,7 +185,7 @@ class EventSourcingGraphvizFormatter implements ErrorFormatter
 
         file_put_contents(
             'event-sourcing.dot',
-            $graph->render()
+            $graph->render(),
         );
 
         return 0;

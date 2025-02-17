@@ -7,7 +7,7 @@ namespace Patchlevel\EventSourcingAnalyser\Data;
 class Command
 {
     /**
-     * @param class-string $class
+     * @param class-string       $class
      * @param list<class-string> $events
      */
     public function __construct(

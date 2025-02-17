@@ -6,9 +6,7 @@ namespace Patchlevel\EventSourcingAnalyser\Data;
 
 class Event
 {
-    /**
-     * @param class-string $class
-     */
+    /** @param class-string $class */
     public function __construct(
         public string $name,
         public string $class,
