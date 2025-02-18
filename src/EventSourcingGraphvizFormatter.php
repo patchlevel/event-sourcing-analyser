@@ -10,7 +10,6 @@ use PHPStan\Command\ErrorFormatter\ErrorFormatter;
 use PHPStan\Command\Output;
 
 use function array_key_exists;
-use function file_put_contents;
 
 final class EventSourcingGraphvizFormatter implements ErrorFormatter
 {
@@ -181,12 +180,7 @@ final class EventSourcingGraphvizFormatter implements ErrorFormatter
             }
         }
 
-        echo $graph->render();
-
-        file_put_contents(
-            'event-sourcing.dot',
-            $graph->render(),
-        );
+        $output->writeRaw($graph->render());
 
         return 0;
     }
