@@ -17,7 +17,10 @@ use PHPStan\Type\ThisType;
 
 use function in_array;
 
-/** @implements Collector<MethodCall, array{aggregateClass: class-string, callMethod: string|null, calledMethod: string|null, eventClass: string|null, commandClass: string|null}> */
+/**
+ * @phpstan-type SubscriberCallCollectorType array{subscriberClass: class-string, callMethod: string|null, calledMethod: string|null, eventClasses: list<class-string>, commandClass: class-string|null}
+ * @implements Collector<MethodCall, SubscriberCallCollectorType>
+ */
 final class SubscriberCallCollector implements Collector
 {
     public function getNodeType(): string

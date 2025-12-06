@@ -11,7 +11,10 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Type\ObjectType;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
-/** @implements Collector<MethodCall, array{controllerClass: class-string, commandClass: class-string}> */
+/**
+ * @phpstan-type SymfonyControllerDispatchCommandCollectorType array{controllerClass: class-string, commandClass: class-string}
+ * @implements Collector<MethodCall, SymfonyControllerDispatchCommandCollectorType>
+ */
 final class SymfonyControllerDispatchCommandCollector implements Collector
 {
     public function getNodeType(): string
