@@ -12,7 +12,10 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Collectors\Collector;
 use PHPStan\Node\InClassNode;
 
-/** @implements Collector<InClassNode, array{class: class-string, type: string, name: string}> */
+/**
+ * @phpstan-type SubscriberCollectorType array{class: class-string, type: string, name: string}
+ * @implements Collector<InClassNode, SubscriberCollectorType>
+ */
 final class SubscriberCollector implements Collector
 {
     public function getNodeType(): string

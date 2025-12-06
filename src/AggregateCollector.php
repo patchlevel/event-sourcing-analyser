@@ -10,7 +10,10 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Collectors\Collector;
 use PHPStan\Node\InClassNode;
 
-/** @implements Collector<InClassNode, array{class: class-string, name: string}> */
+/**
+ * @phpstan-type AggregateCollectorType array{class: class-string, name: string}
+ * @implements Collector<InClassNode, AggregateCollectorType>
+ */
 final class AggregateCollector implements Collector
 {
     public function getNodeType(): string
@@ -38,7 +41,7 @@ final class AggregateCollector implements Collector
 
             return [
                 'class' => $classReflection->getName(),
-                'name' => $arguments['name']->getValue(),
+                'name' => (string)$arguments['name']->getValue(),
             ];
         }
 

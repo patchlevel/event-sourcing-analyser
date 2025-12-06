@@ -11,6 +11,7 @@ use PHPStan\Command\Output;
 use function json_encode;
 
 use const JSON_PRETTY_PRINT;
+use const JSON_THROW_ON_ERROR;
 
 final class EventSourcingJsonFormatter implements ErrorFormatter
 {
@@ -19,7 +20,7 @@ final class EventSourcingJsonFormatter implements ErrorFormatter
         $data = $analysisResult->getCollectedData();
         $project = (new ProjectFactory())($data);
 
-        $output->writeRaw(json_encode($project, JSON_PRETTY_PRINT));
+        $output->writeRaw(json_encode($project, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
 
         return 0;
     }

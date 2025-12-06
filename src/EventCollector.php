@@ -10,7 +10,10 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Collectors\Collector;
 use PHPStan\Node\InClassNode;
 
-/** @implements Collector<InClassNode, array{class: class-string, name: string}> */
+/**
+ * @phpstan-type EventCollectorType array{class: class-string, name: string}
+ * @implements Collector<InClassNode, EventCollectorType>
+ */
 final class EventCollector implements Collector
 {
     public function getNodeType(): string

@@ -13,7 +13,10 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\ThisType;
 
-/** @implements Collector<MethodCall, array{aggregateClass: class-string, callMethod: string|null, calledMethod: string|null, eventClass: string|null, commandClass: string|null}> */
+/**
+ * @phpstan-type AggregateCallCollectorType array{aggregateClass: class-string, callMethod: string|null, calledMethod: string|null, eventClass: class-string|null, commandClass: class-string|null}
+ * @implements Collector<MethodCall, AggregateCallCollectorType>
+ */
 final class AggregateCallCollector implements Collector
 {
     public function getNodeType(): string

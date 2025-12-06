@@ -23,6 +23,15 @@ use function explode;
 use function preg_match;
 use function sprintf;
 
+/**
+ * @phpstan-import-type AggregateCollectorType from AggregateCollector
+ * @phpstan-import-type AggregateCallCollectorType from AggregateCallCollector
+ * @phpstan-import-type EventCollectorType from EventCollector
+ * @phpstan-import-type SubscriberCollectorType from SubscriberCollector
+ * @phpstan-import-type SubscriberCallCollectorType from SubscriberCallCollector
+ * @phpstan-import-type SymfonyControllerDispatchCommandCollectorType from SymfonyControllerDispatchCommandCollector
+ * @phpstan-import-type SymfonyControllerSubscriberAccessCollectorType from SymfonyControllerSubscriberAccessCollector
+ */
 final class ProjectFactory
 {
     /** @param list<CollectedData> $collectedDataList */
@@ -66,12 +75,14 @@ final class ProjectFactory
         $result = [];
 
         foreach ($aggregateData as $row) {
+            /** @var AggregateCollectorType $data */
             $data = $row->getData();
 
             $events = [];
             $commands = [];
 
             foreach ($aggregateCallData as $r) {
+                /** @var AggregateCallCollectorType $d */
                 $d = $r->getData();
 
                 if ($d['aggregateClass'] !== $data['class']) {
@@ -115,6 +126,7 @@ final class ProjectFactory
         $result = [];
 
         foreach ($eventData as $row) {
+            /** @var EventCollectorType $data */
             $data = $row->getData();
 
             $result[$data['class']] = new Event(
@@ -146,12 +158,14 @@ final class ProjectFactory
         $result = [];
 
         foreach ($eventData as $row) {
+            /** @var SubscriberCollectorType $data */
             $data = $row->getData();
 
             $events = [];
             $commands = [];
 
             foreach ($subscriberCallData as $r) {
+                /** @var SubscriberCallCollectorType $d */
                 $d = $r->getData();
 
                 if ($d['subscriberClass'] !== $data['class']) {
@@ -199,6 +213,7 @@ final class ProjectFactory
         $result = [];
 
         foreach ($calls as $row) {
+            /** @var AggregateCallCollectorType|SymfonyControllerDispatchCommandCollectorType $data */
             $data = $row->getData();
 
             if ($data['commandClass'] === null) {
@@ -231,9 +246,11 @@ final class ProjectFactory
             static fn (CollectedData $data) => $data->getCollectorType() === AggregateCallCollector::class,
         );
 
+        /** @var array<array{aggregateClass: string, calledMethod: string, eventClass: string}> $methodCalls */
         $methodCalls = [];
 
         foreach ($aggregateCallData as $row) {
+            /** @var AggregateCallCollectorType $data */
             $data = $row->getData();
 
             $key = sprintf('%s::%s', $data['aggregateClass'], $data['callMethod']);
@@ -252,6 +269,7 @@ final class ProjectFactory
         $result = [];
 
         foreach ($aggregateCallData as $row) {
+            /** @var AggregateCallCollectorType $data */
             $data = $row->getData();
 
             if (!$data['commandClass']) {
@@ -292,6 +310,7 @@ final class ProjectFactory
         $result = [];
 
         foreach ($commandCallData as $row) {
+            /** @var SymfonyControllerDispatchCommandCollectorType $data */
             $data = $row->getData();
 
             if (!isset($result[$data['controllerClass']])) {
@@ -305,6 +324,7 @@ final class ProjectFactory
         }
 
         foreach ($subscriberCallData as $row) {
+            /** @var SymfonyControllerSubscriberAccessCollectorType $data */
             $data = $row->getData();
 
             if (!isset($result[$data['controllerClass']])) {
@@ -320,7 +340,11 @@ final class ProjectFactory
         return $result;
     }
 
-    /** @return array<class-string> */
+    /**
+     * @param array<string, array<array{aggregateClass: string, calledMethod: string, eventClass: string}>> $methodCalls
+     *
+     * @return array<class-string>
+     */
     private static function resolveCallForEvents(array $methodCalls, string $aggregate, string $method): array
     {
         $key = sprintf('%s::%s', $aggregate, $method);

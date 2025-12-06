@@ -3,14 +3,13 @@
     "type": "library",
     "license": "MIT",
     "require": {
-        "php": "~8.2 || ~8.3 || ~8.4",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "phpstan/phpstan": "^2.1",
         "alom/graphviz": "^2.0"
     },
     "require-dev": {
         "patchlevel/event-sourcing": "^3.8",
-        "symfony/http-kernel": "^7.0.0",
-        "symfony/var-dumper": "^7.0.0",
+        "symfony/http-kernel": "^7.0.0 || ^8.0.0",
         "phpunit/phpunit": "^12.0",
         "patchlevel/coding-standard": "^1.3"
     },

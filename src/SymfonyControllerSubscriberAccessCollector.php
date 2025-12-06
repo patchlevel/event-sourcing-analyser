@@ -15,7 +15,10 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 
 use function in_array;
 
-/** @implements Collector<MethodCall, array{controllerClass: class-string, commandClass: class-string}> */
+/**
+ * @phpstan-type SymfonyControllerSubscriberAccessCollectorType array{controllerClass: class-string, subscriberClass: class-string}
+ * @implements Collector<MethodCall, SymfonyControllerSubscriberAccessCollectorType>
+ */
 final class SymfonyControllerSubscriberAccessCollector implements Collector
 {
     public function getNodeType(): string
