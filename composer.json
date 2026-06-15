@@ -1,7 +1,19 @@
 {
     "name": "patchlevel/event-sourcing-analyser",
     "type": "library",
+    "description": "Visualize your event sourced domain as an Event Storming diagram, straight from your code",
+    "homepage": "https://patchlevel.dev/docs/event-sourcing-analyser/latest",
     "license": "MIT",
+    "keywords": [
+        "patchlevel",
+        "event sourcing",
+        "event storming",
+        "phpstan",
+        "static analysis",
+        "graphviz",
+        "visualization",
+        "ddd"
+    ],
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "phpstan/phpstan": "^2.1",
@@ -11,7 +23,8 @@
         "patchlevel/event-sourcing": "^3.8",
         "symfony/http-kernel": "^7.0.0 || ^8.0.0",
         "phpunit/phpunit": "^12.0",
-        "patchlevel/coding-standard": "^1.3"
+        "patchlevel/coding-standard": "^1.3",
+        "wnx/commonmark-markdown-renderer": "^1.6"
     },
     "autoload": {
         "psr-4": {

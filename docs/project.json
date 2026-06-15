@@ -1,0 +1,8 @@
+{
+    "navigation": [
+        { "title": "Introduction", "file": "introduction.md" },
+        { "title": "Getting Started", "file": "getting-started.md" },
+        { "title": "Event Storming", "file": "event-storming.md" },
+        { "title": "Output", "file": "output.md" }
+    ]
+}

@@ -11,3 +11,4 @@
 /output.png export-ignore
 /Makefile export-ignore
 /renovate.json export-ignore
+/docs/ export-ignore
