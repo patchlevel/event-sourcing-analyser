@@ -1,7 +1,7 @@
 # Output
 
 Once the analyser has read your domain, it renders the model through a PHPStan error formatter. Two formatters ship
-with the package: `eventSourcingGraphviz` draws an [Event Storming](event-storming.md) diagram, and
+with the package: `eventSourcingGraphviz` draws a diagram inspired by [Event Storming](how-it-works.md), and
 `eventSourcingJson` exports the same model as data for your own tooling. You pick one with the `--error-format` option
 of `phpstan analyse`.
 
@@ -17,7 +17,7 @@ vendor/bin/phpstan analyse --error-format=eventSourcingGraphviz ./src | dot -Tpn
 macOS or `apt-get install graphviz` on Debian based systems. Swap `-Tpng` for `-Tsvg` to get a scalable vector image
 instead.
 
-Every [bounded context](event-storming.md) becomes a dotted cluster. Inside it, each aggregate is its own subgraph
+Every [bounded context](how-it-works.md) becomes a dotted cluster. Inside it, each aggregate is its own subgraph
 that groups the commands and events belonging to it, while subscribers and controllers sit next to the aggregates in
 the same context. The edges follow the flow of your domain:
 
@@ -27,7 +27,7 @@ the same context. The edges follow the flow of your domain:
 * a controller points to the commands it dispatches
 * a subscriber points to the controller that reads from it
 
-The node colors match the [Event Storming notation](event-storming.md), so commands are blue, events orange,
+The node colors match the [Event Storming notation](how-it-works.md), so commands are blue, events orange,
 aggregates yellow, and so on.
 
 :::tip
@@ -93,10 +93,10 @@ element:
 ```
 The `boundedContexts` entries hold only class names and reference the full elements in the other collections. The
 `type` of a subscriber is one of `subscriber`, `processor` or `projector`, matching the three
-[subscriber flavours](event-storming.md). Names come straight from your attributes: an aggregate or event uses the
+[subscriber flavours](how-it-works.md). Names come straight from your attributes: an aggregate or event uses the
 name you passed to `#[Aggregate]` or `#[Event]`, while a command or controller falls back to its short class name.
 
 ## Learn more
 
-* [How each element and its name is detected](event-storming.md)
+* [How each element and its name is detected](how-it-works.md)
 * [How to analyse a domain from scratch](getting-started.md)

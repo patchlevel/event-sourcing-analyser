@@ -3,16 +3,20 @@
 
 # Event Sourcing Analyser
 
-"Visualize your event sourced domain as an Event Storming diagram, straight from your code."
+"Visualize your event sourced domain as a diagram inspired by Event Storming, straight from your code."
+
+> [!WARNING]
+> This package is still work in progress. It is usable today, but no API is stable yet: class names, attributes and the
+> output format may change in any release until a stable version is tagged.
 
 ![output](output.png)
 
 ## Features
 
-* Detects [aggregates, events, commands and subscribers](https://patchlevel.dev/docs/event-sourcing-analyser/latest/event-storming) from your attributes
-* Groups everything into [bounded contexts](https://patchlevel.dev/docs/event-sourcing-analyser/latest/event-storming#bounded-contexts) based on your namespaces
-* Picks up [Symfony controllers](https://patchlevel.dev/docs/event-sourcing-analyser/latest/event-storming#symfony-controllers) that dispatch commands or read from projections
-* Renders an Event Storming diagram with [Graphviz](https://patchlevel.dev/docs/event-sourcing-analyser/latest/output#graphviz)
+* Detects [aggregates, events, commands and subscribers](https://patchlevel.dev/docs/event-sourcing-analyser/latest/how-it-works) from your attributes
+* Groups everything into [bounded contexts](https://patchlevel.dev/docs/event-sourcing-analyser/latest/how-it-works#bounded-contexts) based on your namespaces
+* Picks up [Symfony controllers](https://patchlevel.dev/docs/event-sourcing-analyser/latest/how-it-works#symfony-controllers) that dispatch commands or read from projections
+* Renders a diagram inspired by Event Storming with [Graphviz](https://patchlevel.dev/docs/event-sourcing-analyser/latest/output#graphviz)
 * Exports the whole model as [JSON](https://patchlevel.dev/docs/event-sourcing-analyser/latest/output#json) for your own tooling
 
 ## Installation

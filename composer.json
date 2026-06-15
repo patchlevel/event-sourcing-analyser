@@ -1,7 +1,7 @@
 {
     "name": "patchlevel/event-sourcing-analyser",
     "type": "library",
-    "description": "Visualize your event sourced domain as an Event Storming diagram, straight from your code",
+    "description": "Visualize your event sourced domain as a diagram inspired by Event Storming, straight from your code",
     "homepage": "https://patchlevel.dev/docs/event-sourcing-analyser/latest",
     "license": "MIT",
     "keywords": [

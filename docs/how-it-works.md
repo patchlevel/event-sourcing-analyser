@@ -1,12 +1,15 @@
-# Event Storming
+# How It Works
 
-[Event Storming](https://agiledojo.de/2023-04-14-event-storming-notation-explained/) is a workshop format that
-describes a domain as a flow of commands, events and reactions. The analyser produces the same picture automatically:
-it reads the attributes and method calls in your code and maps each building block onto an Event Storming element with
-its own color.
+The analyser reads the attributes and method calls in your code and turns them into a model of your domain: which
+commands are handled, which events they record, and which subscribers react to them. This page explains how each
+element is detected, how they are grouped into bounded contexts and how Symfony controllers join the picture. The
+result is what you see in the [Graphviz and JSON output](output.md).
 
-This page explains how the analyser detects each element, how it groups them into bounded contexts and how Symfony
-controllers join the picture. The result is what you see in the [Graphviz and JSON output](output.md).
+:::note
+The diagram is inspired by [Event Storming](https://agiledojo.de/2023-04-14-event-storming-notation-explained/), a
+workshop format that describes a domain as a flow of commands, events and reactions. It is not a strict Event Storming
+diagram, but each building block below borrows the color of its Event Storming element, so the picture stays familiar.
+:::
 
 ## Aggregates
 
@@ -55,18 +58,24 @@ analyser looks at the aggregate methods marked with `#[Handle]` and reads the co
 the command type implicitly through the first parameter or explicitly as an argument:
 
 ```php
+use Patchlevel\EventSourcing\Aggregate\BasicAggregateRoot;
+use Patchlevel\EventSourcing\Attribute\Aggregate;
 use Patchlevel\EventSourcing\Attribute\Handle;
 
-#[Handle]
-public static function create(CreateProfile $command): self
+#[Aggregate('profile')]
+final class Profile extends BasicAggregateRoot
 {
-    // command resolved from the CreateProfile parameter type
-}
+    #[Handle]
+    public static function create(CreateProfile $command): self
+    {
+        // command resolved from the CreateProfile parameter type
+    }
 
-#[Handle(RenameProfile::class)]
-public function rename(string $name): void
-{
-    // command resolved from the explicit argument
+    #[Handle(RenameProfile::class)]
+    public function rename(string $name): void
+    {
+        // command resolved from the explicit argument
+    }
 }
 ```
 Each command is connected to the events that its handler records, which is what draws the command to event edges in
@@ -194,7 +203,7 @@ the right cluster automatically.
 The diagram uses the colors below. They follow the usual Event Storming palette so the picture stays familiar.
 
 | Element | Color | Detected from |
-|---|---|---|
+| --- | --- | --- |
 | Aggregate | yellow | `#[Aggregate]` |
 | Event | orange | `#[Event]` recorded via `recordThat` |
 | Command | blue | `#[Handle]` |

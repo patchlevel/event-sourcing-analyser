@@ -1,7 +1,8 @@
 # Getting Started
 
-In this guide you analyse a small profile domain and render it as an Event Storming diagram. You start from an empty
-PHPStan setup, add the analyser, write a handful of event sourcing classes and end up with a PNG of your domain.
+In this guide you analyse a small profile domain and render it as a diagram inspired by Event Storming. You start from
+an empty PHPStan setup, add the analyser, write a handful of event sourcing classes and end up with a PNG of your
+domain.
 
 ## Installation
 
@@ -13,7 +14,7 @@ composer require --dev patchlevel/event-sourcing-analyser
 ```
 ## Register the extension
 
-The package ships an `extension.neon` that registers the [collectors](event-storming.md) and the output formatters.
+The package ships an `extension.neon` that registers the [collectors](how-it-works.md) and the output formatters.
 Include it from your `phpstan.neon`:
 
 ```neon
@@ -88,7 +89,7 @@ final class Profile extends BasicAggregateRoot
 ```
 :::note
 The analyser reads the command from the typed parameter of `#[Handle]` or from its explicit `RenameProfile::class`
-argument. Both styles are described on the [Event Storming](event-storming.md) page.
+argument. Both styles are described on the [how it works](how-it-works.md) page.
 :::
 
 ## React with a subscriber
@@ -141,7 +142,7 @@ As your code changes, the diagram changes with it.
 
 ## Learn more
 
-* [How the analyser maps your code to Event Storming notation](event-storming.md)
-* [How bounded contexts are derived from namespaces](event-storming.md#bounded-contexts)
+* [How the analyser maps your code to Event Storming notation](how-it-works.md)
+* [How bounded contexts are derived from namespaces](how-it-works.md#bounded-contexts)
 * [How to render the Graphviz output](output.md#graphviz)
 * [How to consume the JSON output](output.md#json)
