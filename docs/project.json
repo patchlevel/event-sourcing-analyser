@@ -1,0 +1,8 @@
+{
+    "navigation": [
+        { "title": "Introduction", "file": "introduction.md" },
+        { "title": "Getting Started", "file": "getting-started.md" },
+        { "title": "How It Works", "file": "how-it-works.md" },
+        { "title": "Output", "file": "output.md" }
+    ]
+}
